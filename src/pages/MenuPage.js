@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Space, Tag, Popconfirm, message } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, Space, Tag, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import client from '../api/client';
+import { useStatusMessage } from '../components/AppLayout';
 
 export default function MenuPage() {
   const [menus, setMenus] = useState([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form] = Form.useForm();
+  const { setMessage } = useStatusMessage();
 
   const load = async () => {
     const res = await client.get('/api/menus');
@@ -24,11 +26,11 @@ export default function MenuPage() {
       } else {
         await client.post('/api/menus', values);
       }
-      message.success('저장되었습니다.');
+      setMessage('저장되었습니다.');
       setOpen(false);
       load();
     } catch (e) {
-      message.error(e.response?.data?.detail || '오류가 발생했습니다.');
+      setMessage(e.response?.data?.detail || '오류가 발생했습니다.');
     }
   };
 
@@ -65,8 +67,7 @@ export default function MenuPage() {
 
   return (
     <>
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>메뉴명 관리</h2>
+      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setOpen(true); }}>메뉴 등록</Button>
       </div>
       <Table rowKey="menu_id" dataSource={menus} columns={columns} />

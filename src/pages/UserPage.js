@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Space, Tag, Popconfirm, message } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, Space, Tag, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import client from '../api/client';
+import { useStatusMessage } from '../components/AppLayout';
 
 export default function UserPage() {
   const [users, setUsers] = useState([]);
@@ -9,6 +10,7 @@ export default function UserPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form] = Form.useForm();
+  const { setMessage } = useStatusMessage();
 
   const load = async () => {
     const [u, o] = await Promise.all([client.get('/api/users'), client.get('/api/organizations')]);
@@ -30,25 +32,25 @@ export default function UserPage() {
     try {
       if (editing) {
         await client.put(`/api/users/${editing.user_id}`, values);
-        message.success('수정되었습니다.');
+        setMessage('수정되었습니다.');
       } else {
         await client.post('/api/users', values);
-        message.success('등록되었습니다.');
+        setMessage('등록되었습니다.');
       }
       setOpen(false);
       load();
     } catch (e) {
-      message.error(e.response?.data?.detail || '오류가 발생했습니다.');
+      setMessage(e.response?.data?.detail || '오류가 발생했습니다.');
     }
   };
 
   const handleDelete = async (user_id) => {
     try {
       await client.delete(`/api/users/${user_id}`);
-      message.success('삭제되었습니다.');
+      setMessage('삭제되었습니다.');
       load();
     } catch (e) {
-      message.error(e.response?.data?.detail || '오류가 발생했습니다.');
+      setMessage(e.response?.data?.detail || '오류가 발생했습니다.');
     }
   };
 
@@ -84,8 +86,7 @@ export default function UserPage() {
 
   return (
     <>
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>사용자 관리</h2>
+      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>사용자 등록</Button>
       </div>
       <Table rowKey="user_id" dataSource={users} columns={columns} />

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Row, Col, Table, Button, Modal, Form, Input, Select, Space, Tag, Popconfirm, message } from 'antd';
+import { Row, Col, Table, Button, Modal, Form, Input, Select, Space, Tag, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import client from '../api/client';
+import { useStatusMessage } from '../components/AppLayout';
 
 export default function CommonCodePage() {
   const [groups, setGroups] = useState([]);
@@ -13,6 +14,7 @@ export default function CommonCodePage() {
   const [editingCode, setEditingCode] = useState(null);
   const [groupForm] = Form.useForm();
   const [codeForm] = Form.useForm();
+  const { setMessage } = useStatusMessage();
 
   const loadGroups = async () => {
     const res = await client.get('/api/common-codes/groups');
@@ -39,11 +41,11 @@ export default function CommonCodePage() {
       } else {
         await client.post('/api/common-codes/groups', values);
       }
-      message.success('저장되었습니다.');
+      setMessage('저장되었습니다.');
       setGroupOpen(false);
       loadGroups();
     } catch (e) {
-      message.error(e.response?.data?.detail || '오류가 발생했습니다.');
+      setMessage(e.response?.data?.detail || '오류가 발생했습니다.');
     }
   };
 
@@ -55,11 +57,11 @@ export default function CommonCodePage() {
       } else {
         await client.post(`/api/common-codes/groups/${selectedGroup.group_code}/codes`, values);
       }
-      message.success('저장되었습니다.');
+      setMessage('저장되었습니다.');
       setCodeOpen(false);
       loadCodes(selectedGroup.group_code);
     } catch (e) {
-      message.error(e.response?.data?.detail || '오류가 발생했습니다.');
+      setMessage(e.response?.data?.detail || '오류가 발생했습니다.');
     }
   };
 
@@ -112,7 +114,6 @@ export default function CommonCodePage() {
 
   return (
     <>
-      <h2>공통코드 관리</h2>
       <Row gutter={16}>
         <Col span={10}>
           <div style={{ marginBottom: 8, display: 'flex', justifyContent: 'space-between' }}>

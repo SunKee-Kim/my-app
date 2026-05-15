@@ -74,3 +74,9 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 - Run frontend tests: `npm test`
 - Run frontend dev server: `npm start`
 - Run backend dev server: `uvicorn main:app --reload`
+
+## Screen Development Rules
+
+Screen/UI layout rules (target resolution, top bar, bottom status bar, etc.) are documented separately in [docs/screen-development-rules.md](docs/screen-development-rules.md).
+
+**When to read:** Load that file before creating or modifying any screen layout, page component, or `AppLayout`. Skip it for unrelated work (backend, business logic, scripts).

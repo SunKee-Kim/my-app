@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Space, Tag, Popconfirm, message } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, Space, Tag, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import client from '../api/client';
+import { useStatusMessage } from '../components/AppLayout';
 
 export default function OrganizationPage() {
   const [orgs, setOrgs] = useState([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form] = Form.useForm();
+  const { setMessage } = useStatusMessage();
 
   const load = async () => {
     const res = await client.get('/api/organizations');
@@ -28,25 +30,25 @@ export default function OrganizationPage() {
     try {
       if (editing) {
         await client.put(`/api/organizations/${editing.org_id}`, values);
-        message.success('수정되었습니다.');
+        setMessage('수정되었습니다.');
       } else {
         await client.post('/api/organizations', values);
-        message.success('등록되었습니다.');
+        setMessage('등록되었습니다.');
       }
       setOpen(false);
       load();
     } catch (e) {
-      message.error(e.response?.data?.detail || '오류가 발생했습니다.');
+      setMessage(e.response?.data?.detail || '오류가 발생했습니다.');
     }
   };
 
   const handleDelete = async (org_id) => {
     try {
       await client.delete(`/api/organizations/${org_id}`);
-      message.success('삭제되었습니다.');
+      setMessage('삭제되었습니다.');
       load();
     } catch (e) {
-      message.error(e.response?.data?.detail || '오류가 발생했습니다.');
+      setMessage(e.response?.data?.detail || '오류가 발생했습니다.');
     }
   };
 
@@ -82,8 +84,7 @@ export default function OrganizationPage() {
 
   return (
     <>
-      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>조직 관리</h2>
+      <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>조직 등록</Button>
       </div>
       <Table rowKey="org_id" dataSource={orgs} columns={columns} />

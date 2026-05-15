@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Select, Table, Button, Checkbox, message, Space } from 'antd';
+import { Select, Table, Button, Checkbox } from 'antd';
 import client from '../api/client';
+import { useStatusMessage } from '../components/AppLayout';
 
 export default function MenuPermissionPage() {
   const [users, setUsers] = useState([]);
   const [menus, setMenus] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [permissions, setPermissions] = useState({});
+  const { setMessage } = useStatusMessage();
 
   const loadBase = async () => {
     const [u, m] = await Promise.all([client.get('/api/users'), client.get('/api/menus')]);
@@ -49,9 +51,9 @@ export default function MenuPermissionPage() {
     }));
     try {
       await client.put(`/api/permissions/menu/${selectedUser}`, items);
-      message.success('저장되었습니다.');
+      setMessage('저장되었습니다.');
     } catch (e) {
-      message.error('저장 실패');
+      setMessage('저장 실패');
     }
   };
 
@@ -73,17 +75,14 @@ export default function MenuPermissionPage() {
   return (
     <>
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Space>
-          <h2 style={{ margin: 0 }}>사용자 메뉴권한 관리</h2>
-          <Select
-            placeholder="사용자 선택"
-            style={{ width: 220 }}
-            onChange={handleUserChange}
-            allowClear
-          >
-            {users.map(u => <Select.Option key={u.user_id} value={u.user_id}>{u.user_name} ({u.user_id})</Select.Option>)}
-          </Select>
-        </Space>
+        <Select
+          placeholder="사용자 선택"
+          style={{ width: 220 }}
+          onChange={handleUserChange}
+          allowClear
+        >
+          {users.map(u => <Select.Option key={u.user_id} value={u.user_id}>{u.user_name} ({u.user_id})</Select.Option>)}
+        </Select>
         <Button type="primary" disabled={!selectedUser} onClick={handleSave}>저장</Button>
       </div>
       <Table rowKey="menu_id" dataSource={menus} columns={columns} />

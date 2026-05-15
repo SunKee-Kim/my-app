@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Space, Tag, Popconfirm, message } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, Space, Tag, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import client from '../api/client';
+import { useStatusMessage } from '../components/AppLayout';
 
 export default function ScreenButtonPage() {
   const [buttons, setButtons] = useState([]);
@@ -10,6 +11,7 @@ export default function ScreenButtonPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form] = Form.useForm();
+  const { setMessage } = useStatusMessage();
 
   const load = async (menuId) => {
     const params = menuId ? { params: { menu_id: menuId } } : {};
@@ -28,11 +30,11 @@ export default function ScreenButtonPage() {
       } else {
         await client.post('/api/screen-buttons', values);
       }
-      message.success('저장되었습니다.');
+      setMessage('저장되었습니다.');
       setOpen(false);
       load(filterMenu);
     } catch (e) {
-      message.error(e.response?.data?.detail || '오류가 발생했습니다.');
+      setMessage(e.response?.data?.detail || '오류가 발생했습니다.');
     }
   };
 
@@ -70,17 +72,14 @@ export default function ScreenButtonPage() {
   return (
     <>
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Space>
-          <h2 style={{ margin: 0 }}>화면별 버튼 관리</h2>
-          <Select
-            allowClear
-            placeholder="화면(메뉴) 필터"
-            style={{ width: 200 }}
-            onChange={setFilterMenu}
-          >
-            {menus.map(m => <Select.Option key={m.menu_id} value={m.menu_id}>{m.menu_name}</Select.Option>)}
-          </Select>
-        </Space>
+        <Select
+          allowClear
+          placeholder="화면(메뉴) 필터"
+          style={{ width: 200 }}
+          onChange={setFilterMenu}
+        >
+          {menus.map(m => <Select.Option key={m.menu_id} value={m.menu_id}>{m.menu_name}</Select.Option>)}
+        </Select>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditing(null); form.resetFields(); setOpen(true); }}>버튼 등록</Button>
       </div>
       <Table rowKey="button_id" dataSource={buttons} columns={columns} />

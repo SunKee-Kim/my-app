@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Select, Table, Button, Checkbox, message, Space, Tag } from 'antd';
+import { Select, Table, Button, Checkbox, Tag } from 'antd';
 import client from '../api/client';
+import { useStatusMessage } from '../components/AppLayout';
 
 export default function ButtonPermissionPage() {
   const [users, setUsers] = useState([]);
@@ -8,6 +9,7 @@ export default function ButtonPermissionPage() {
   const [menus, setMenus] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [permissions, setPermissions] = useState({});
+  const { setMessage } = useStatusMessage();
 
   const loadBase = async () => {
     const [u, b, m] = await Promise.all([
@@ -43,9 +45,9 @@ export default function ButtonPermissionPage() {
     const items = buttons.map(b => ({ button_id: b.button_id, granted: permissions[b.button_id] || false }));
     try {
       await client.put(`/api/permissions/button/${selectedUser}`, items);
-      message.success('저장되었습니다.');
+      setMessage('저장되었습니다.');
     } catch (e) {
-      message.error('저장 실패');
+      setMessage('저장 실패');
     }
   };
 
@@ -83,17 +85,14 @@ export default function ButtonPermissionPage() {
   return (
     <>
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Space>
-          <h2 style={{ margin: 0 }}>사용자 버튼권한 관리</h2>
-          <Select
-            placeholder="사용자 선택"
-            style={{ width: 220 }}
-            onChange={handleUserChange}
-            allowClear
-          >
-            {users.map(u => <Select.Option key={u.user_id} value={u.user_id}>{u.user_name} ({u.user_id})</Select.Option>)}
-          </Select>
-        </Space>
+        <Select
+          placeholder="사용자 선택"
+          style={{ width: 220 }}
+          onChange={handleUserChange}
+          allowClear
+        >
+          {users.map(u => <Select.Option key={u.user_id} value={u.user_id}>{u.user_name} ({u.user_id})</Select.Option>)}
+        </Select>
         <Button type="primary" disabled={!selectedUser} onClick={handleSave}>저장</Button>
       </div>
       <Table rowKey="button_id" dataSource={buttons} columns={columns} />

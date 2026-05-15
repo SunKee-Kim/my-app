@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, Base
-from routers import organization, user, common_code, menu, screen_button, permission
+from routers import organization, user, common_code, menu, screen_button, permission, auth
 
 Base.metadata.create_all(bind=engine)
 
@@ -21,6 +21,7 @@ app.include_router(common_code.router)
 app.include_router(menu.router)
 app.include_router(screen_button.router)
 app.include_router(permission.router)
+app.include_router(auth.router)
 
 
 @app.get("/")

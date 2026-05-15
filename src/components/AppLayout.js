@@ -1,4 +1,5 @@
-import { Layout, Menu } from 'antd';
+import { createContext, useContext, useState } from 'react';
+import { Layout, Menu, Button } from 'antd';
 import {
   UserOutlined,
   ApartmentOutlined,
@@ -7,10 +8,12 @@ import {
   AppstoreOutlined,
   KeyOutlined,
   LockOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { getSession, clearSession } from '../utils/auth';
 
-const { Header, Sider, Content } = Layout;
+const { Header, Sider, Content, Footer } = Layout;
 
 const menuItems = [
   { key: '/users', icon: <UserOutlined />, label: '사용자 관리' },
@@ -22,32 +25,74 @@ const menuItems = [
   { key: '/button-permissions', icon: <LockOutlined />, label: '사용자 버튼권한' },
 ];
 
-export default function AppLayout({ children }) {
+const StatusMessageContext = createContext({ message: '', setMessage: () => {} });
+
+export const useStatusMessage = () => useContext(StatusMessageContext);
+
+export default function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [message, setMessage] = useState('');
+  const currentScreen = menuItems.find(m => m.key === location.pathname)?.label || '';
+  const session = getSession();
+
+  const onLogout = () => {
+    clearSession();
+    navigate('/login', { replace: true });
+  };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Sider width={220} theme="dark">
-        <div style={{ color: '#fff', padding: '16px', fontWeight: 'bold', fontSize: 16 }}>
-          시스템 관리
-        </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          items={menuItems}
-          onClick={({ key }) => navigate(key)}
-        />
-      </Sider>
-      <Layout>
-        <Header style={{ background: '#fff', padding: '0 24px', borderBottom: '1px solid #f0f0f0' }}>
-          <span style={{ fontWeight: 'bold', fontSize: 16 }}>시스템 공통 관리</span>
-        </Header>
-        <Content style={{ margin: 24, background: '#fff', padding: 24, minHeight: 360 }}>
-          {children}
-        </Content>
+    <StatusMessageContext.Provider value={{ message, setMessage }}>
+      <Layout style={{ minWidth: 1920, minHeight: 1080 }}>
+        <Sider width={220} theme="dark">
+          <div style={{ color: '#fff', padding: '16px', fontWeight: 'bold', fontSize: 16 }}>
+            시스템 관리
+          </div>
+          <Menu
+            theme="dark"
+            mode="inline"
+            selectedKeys={[location.pathname]}
+            items={menuItems}
+            onClick={({ key }) => navigate(key)}
+          />
+        </Sider>
+        <Layout>
+          <Header
+            style={{
+              background: '#fff',
+              padding: '0 24px',
+              borderBottom: '1px solid #f0f0f0',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <span style={{ fontWeight: 'bold', fontSize: 16 }}>{currentScreen}</span>
+            <Button icon={<LogoutOutlined />} onClick={onLogout}>로그아웃</Button>
+          </Header>
+          <Content style={{ margin: 24, background: '#fff', padding: 24, minHeight: 360 }}>
+            <Outlet />
+          </Content>
+          <Footer
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '8px 24px',
+              background: '#fafafa',
+              borderTop: '1px solid #e8e8e8',
+              fontSize: 13,
+              color: '#555',
+            }}
+          >
+            <span>{message}</span>
+            <span>
+              <span style={{ marginRight: 24 }}>로그인 ID: {session?.user_id || '-'}</span>
+              <span>사용자명: {session?.user_name || '-'}</span>
+            </span>
+          </Footer>
+        </Layout>
       </Layout>
-    </Layout>
+    </StatusMessageContext.Provider>
   );
 }
