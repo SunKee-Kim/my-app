@@ -1,25 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import AppLayout from './components/AppLayout';
+import UserPage from './pages/UserPage';
+import OrganizationPage from './pages/OrganizationPage';
+import CommonCodePage from './pages/CommonCodePage';
+import MenuPage from './pages/MenuPage';
+import ScreenButtonPage from './pages/ScreenButtonPage';
+import MenuPermissionPage from './pages/MenuPermissionPage';
+import ButtonPermissionPage from './pages/ButtonPermissionPage';
 
-function App() {
+export default function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <AppLayout>
+        <Routes>
+          <Route path="/" element={<Navigate to="/users" replace />} />
+          <Route path="/users" element={<UserPage />} />
+          <Route path="/organizations" element={<OrganizationPage />} />
+          <Route path="/common-codes" element={<CommonCodePage />} />
+          <Route path="/menus" element={<MenuPage />} />
+          <Route path="/screen-buttons" element={<ScreenButtonPage />} />
+          <Route path="/menu-permissions" element={<MenuPermissionPage />} />
+          <Route path="/button-permissions" element={<ButtonPermissionPage />} />
+        </Routes>
+      </AppLayout>
+    </BrowserRouter>
   );
 }
-
-export default App;
